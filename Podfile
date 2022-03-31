@@ -10,7 +10,7 @@ def common
   pod 'AFNetworking', '~>2.6.3'
   pod 'FMDB'
   pod 'Masonry'
-  # pod 'xUI', :git => "git@github.com:jinsikui/xUI.git", :branch => 'develop'
+  pod 'xUI', :git => "https://github.com/jinsikui/xUI.git", :branch => 'master'
 end
 
 target 'xUtil' do

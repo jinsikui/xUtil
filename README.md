@@ -32,7 +32,7 @@
 
 通过pod引用，在podfile增加下面一行，通过tag指定版本
 ```
-pod 'xUtil',        :git => "git@github.com:jinsikui/xUtil.git", :tag => 'v1.1.0-1'
+pod 'xUtil',        :git => "https://github.com/jinsikui/xUtil.git", :tag => 'vX.X.X-X'
 ```
  objc代码中引入：
 ```
@@ -351,7 +351,7 @@ if(user){
    });
 }
 
-/// 执行坐骑动画
+/// 执行动画
 -(FBLPromise*)executeAnimationOn:(UIView*)trackView{
    // 下载图片的两个promise
    FBLPromise *p1 = [self x_downloadImgPromise:self.animalImgUrl];

@@ -1,9 +1,4 @@
-//
-//  main.m
-//  xUtil
-//
-//  Created by JSK on 2022/3/30.
-//
+
 
 #import <UIKit/UIKit.h>
 #import "AppDelegate.h"

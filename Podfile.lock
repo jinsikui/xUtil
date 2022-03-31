@@ -25,11 +25,46 @@ PODS:
   - FMDB/standard (2.7.5)
   - KVOController (1.2.0)
   - Masonry (1.1.0)
+  - MJRefresh (3.7.2)
   - PromisesObjC (2.0.0)
   - SDWebImage (5.11.1):
     - SDWebImage/Core (= 5.11.1)
   - SDWebImage/Core (5.11.1)
   - SocketRocket (0.6.0)
+  - xUI (2.0.0.0):
+    - KVOController
+    - Masonry
+    - MJRefresh
+    - PromisesObjC
+    - SDWebImage
+    - xUI/Helpers (= 2.0.0.0)
+    - xUI/ViewControllers (= 2.0.0.0)
+    - xUI/Views (= 2.0.0.0)
+  - xUI/Helpers (2.0.0.0):
+    - KVOController
+    - Masonry
+    - MJRefresh
+    - PromisesObjC
+    - SDWebImage
+  - xUI/ViewControllers (2.0.0.0):
+    - KVOController
+    - Masonry
+    - MJRefresh
+    - PromisesObjC
+    - SDWebImage
+  - xUI/Views (2.0.0.0):
+    - KVOController
+    - Masonry
+    - MJRefresh
+    - PromisesObjC
+    - SDWebImage
+    - xUI/Views/PopViewBase (= 2.0.0.0)
+  - xUI/Views/PopViewBase (2.0.0.0):
+    - KVOController
+    - Masonry
+    - MJRefresh
+    - PromisesObjC
+    - SDWebImage
   - YYText (1.0.7)
 
 DEPENDENCIES:
@@ -40,6 +75,7 @@ DEPENDENCIES:
   - PromisesObjC
   - SDWebImage
   - SocketRocket
+  - xUI (from `https://github.com/jinsikui/xUI.git`, branch `master`)
   - YYText
 
 SPEC REPOS:
@@ -48,21 +84,34 @@ SPEC REPOS:
     - FMDB
     - KVOController
     - Masonry
+    - MJRefresh
     - PromisesObjC
     - SDWebImage
     - SocketRocket
     - YYText
+
+EXTERNAL SOURCES:
+  xUI:
+    :branch: master
+    :git: https://github.com/jinsikui/xUI.git
+
+CHECKOUT OPTIONS:
+  xUI:
+    :commit: f64db2b422bed00834f0e7748dbddc2850fcedcc
+    :git: https://github.com/jinsikui/xUI.git
 
 SPEC CHECKSUMS:
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   KVOController: d72ace34afea42468329623b3379ab3cd1d286b6
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+  MJRefresh: 30997d30b347c8e9508a4db11e3a690da0c9b85a
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
+  xUI: 118ea6d74388c2e7c2f6f574a7cfa071a56f0e23
   YYText: 5c461d709e24d55a182d1441c41dc639a18a4849
 
-PODFILE CHECKSUM: 8445ba330694942a860a5e45f97f55f407b89282
+PODFILE CHECKSUM: ff4b730d98b52ab45ea0a6c8522015f643f58f0e
 
 COCOAPODS: 1.10.0
