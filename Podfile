@@ -7,7 +7,7 @@ def common
   pod 'YYText'
   pod 'SocketRocket'
   pod 'SDWebImage'
-  pod 'AFNetworking', '~>2.6.3'
+  pod 'AFNetworking', '~>4.0.0'
   pod 'FMDB'
   pod 'Masonry'
   pod 'xUI', :git => "https://github.com/jinsikui/xUI.git", :branch => 'master'

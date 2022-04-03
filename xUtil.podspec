@@ -27,7 +27,7 @@ Pod::Spec.new do |s|
   s.dependency 'YYText'
   s.dependency 'SocketRocket'
   s.dependency 'SDWebImage'
-  s.dependency 'AFNetworking', '~> 2.6.3'
+  s.dependency 'AFNetworking', '~> 4.0.0'
   s.dependency 'FMDB'
   
   s.subspec 'Helpers' do |sh|
