@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0-0](https://github.com/jinsikui/xUtil/compare/v2.0.0-1...v2.1.0-0) (2022-04-03)
+
+
+### Features
+
+* dependency AFNetworking->4.0.0 ([35b866d](https://github.com/jinsikui/xUtil/commit/35b866d53f51db096d746ee9e4a8aaf4e30c03e3))
+
 ## [2.0.0-1](https://github.com/jinsikui/xUtil/compare/v2.0.0-0...v2.0.0-1) (2022-04-02)
 
 
