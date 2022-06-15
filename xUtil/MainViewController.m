@@ -97,7 +97,6 @@
      third subscribe - get subject value: 3   thread: <_NSMainThread: 0x600003ec80c0>{number = 1, name = main}
      third subscribe - get subject completed   thread: <_NSMainThread: 0x600003ec80c0>{number = 1, name = main}
      */
-    
     self.subject = [RACReplaySubject subject];
     [[self.subject deliverOn:RACScheduler.scheduler] subscribeNext:^(id  _Nullable x) {
         NSLog(@"first subscribe - get subject value: %@ thread: %@", x, [NSThread currentThread]);
