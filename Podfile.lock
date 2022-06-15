@@ -21,6 +21,7 @@ PODS:
   - Masonry (1.1.0)
   - MJRefresh (3.7.2)
   - PromisesObjC (2.0.0)
+  - ReactiveObjC (3.1.1)
   - SDWebImage (5.11.1):
     - SDWebImage/Core (= 5.11.1)
   - SDWebImage/Core (5.11.1)
@@ -67,6 +68,7 @@ DEPENDENCIES:
   - KVOController
   - Masonry
   - PromisesObjC
+  - ReactiveObjC
   - SDWebImage
   - SocketRocket
   - xUI (from `https://github.com/jinsikui/xUI.git`, branch `master`)
@@ -80,6 +82,7 @@ SPEC REPOS:
     - Masonry
     - MJRefresh
     - PromisesObjC
+    - ReactiveObjC
     - SDWebImage
     - SocketRocket
     - YYText
@@ -101,11 +104,12 @@ SPEC CHECKSUMS:
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
   MJRefresh: 30997d30b347c8e9508a4db11e3a690da0c9b85a
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
+  ReactiveObjC: 011caa393aa0383245f2dcf9bf02e86b80b36040
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   xUI: 118ea6d74388c2e7c2f6f574a7cfa071a56f0e23
   YYText: 5c461d709e24d55a182d1441c41dc639a18a4849
 
-PODFILE CHECKSUM: 3e9846fcc1eddf6d0cff7bc2f27b4bef6f407cc6
+PODFILE CHECKSUM: b6fc8136fe9f93eeaae39d909f9c1b40a51e66c5
 
-COCOAPODS: 1.10.0
+COCOAPODS: 1.11.3
