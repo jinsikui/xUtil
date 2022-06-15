@@ -11,6 +11,7 @@
 @property (nonatomic, assign) CGFloat currentY;
 @property(nonatomic,strong) RACSignal *signal;
 @property(nonatomic,strong) RACSubject *subject;
+@property(nonatomic,strong) RACReplaySubject *replaySubject;
 @end
 
 @implementation MainViewController
@@ -43,6 +44,7 @@
     [self addBtn:@"hellow" selector:@selector(actionHellow)];
     [self addBtn:@"RACDeliver" selector:@selector(actionRACDeliver)];
     [self addBtn:@"RACSubject" selector:@selector(actionRACSubject)];
+    [self addBtn:@"RACReplaySubject" selector:@selector(actionRACReplaySubject)];
     _scroll.contentSize = CGSizeMake(0, self.currentY);
 }
 
@@ -86,18 +88,13 @@
 
 -(void)actionRACSubject {
     /**
-     first subscribe - get subject value: 1
-     first subscribe - get subject value: 2
-     first subscribe - get subject error
-     second subscribe - get subject value: 1   thread: <NSThread: 0x600003e8a380>{number = 4, name = (null)}
-     second subscribe - get subject value: 2   thread: <NSThread: 0x600003e901c0>{number = 3, name = (null)}
-     second subscribe - get subject error   thread: <NSThread: 0x600003e901c0>{number = 3, name = (null)}
-     third subscribe - get subject value: 1   thread: <_NSMainThread: 0x600003ec80c0>{number = 1, name = main}
-     third subscribe - get subject value: 2   thread: <_NSMainThread: 0x600003ec80c0>{number = 1, name = main}
-     third subscribe - get subject value: 3   thread: <_NSMainThread: 0x600003ec80c0>{number = 1, name = main}
-     third subscribe - get subject completed   thread: <_NSMainThread: 0x600003ec80c0>{number = 1, name = main}
+     first subscribe - get subject value: 1 thread: <NSThread: 0x60000095ff80>{number = 3, name = (null)}
+     first subscribe - get subject value: 2 thread: <NSThread: 0x60000095ff80>{number = 3, name = (null)}
+     first subscribe - get subject error thread: <NSThread: 0x60000095ff80>{number = 3, name = (null)}
+     second subscribe - get subject value: 3 thread: <_NSMainThread: 0x600000918800>{number = 1, name = main}
+     second subscribe - get subject completed thread: <_NSMainThread: 0x600000918800>{number = 1, name = main}
      */
-    self.subject = [RACReplaySubject subject];
+    self.subject = [RACSubject subject];
     [[self.subject deliverOn:RACScheduler.scheduler] subscribeNext:^(id  _Nullable x) {
         NSLog(@"first subscribe - get subject value: %@ thread: %@", x, [NSThread currentThread]);
     } error:^(NSError * _Nullable error) {
@@ -126,6 +123,60 @@
                     // but call sendError(:) will not override previous sendCompleted()
                     [self.subject sendCompleted];
                     [self.subject subscribeNext:^(id  _Nullable x) {
+                        NSLog(@"third subscribe - get subject value: %@ thread: %@", x, [NSThread currentThread]);
+                    } error:^(NSError * _Nullable error) {
+                        NSLog(@"third subscribe - get subject error thread: %@", [NSThread currentThread]);
+                    } completed:^{
+                        NSLog(@"third subscribe - get subject completed thread: %@", [NSThread currentThread]);
+                    }];
+                }];
+            }];
+        }];
+    }];
+}
+
+-(void)actionRACReplaySubject {
+    /**
+     first subscribe - get subject value: 1
+     first subscribe - get subject value: 2
+     first subscribe - get subject error
+     second subscribe - get subject value: 1   thread: <NSThread: 0x600003e8a380>{number = 4, name = (null)}
+     second subscribe - get subject value: 2   thread: <NSThread: 0x600003e901c0>{number = 3, name = (null)}
+     second subscribe - get subject error   thread: <NSThread: 0x600003e901c0>{number = 3, name = (null)}
+     third subscribe - get subject value: 1   thread: <_NSMainThread: 0x600003ec80c0>{number = 1, name = main}
+     third subscribe - get subject value: 2   thread: <_NSMainThread: 0x600003ec80c0>{number = 1, name = main}
+     third subscribe - get subject value: 3   thread: <_NSMainThread: 0x600003ec80c0>{number = 1, name = main}
+     third subscribe - get subject completed   thread: <_NSMainThread: 0x600003ec80c0>{number = 1, name = main}
+     */
+    self.replaySubject = [RACReplaySubject subject];
+    [[self.replaySubject deliverOn:RACScheduler.scheduler] subscribeNext:^(id  _Nullable x) {
+        NSLog(@"first subscribe - get subject value: %@ thread: %@", x, [NSThread currentThread]);
+    } error:^(NSError * _Nullable error) {
+        NSLog(@"first subscribe - get subject error thread: %@", [NSThread currentThread]);
+    } completed:^{
+        NSLog(@"first subscribe - get subject completed thread: %@", [NSThread currentThread]);
+    }];
+    [xTask asyncMainAfter:5 task:^{
+        [self.replaySubject sendNext:@(1)];
+        [xTask asyncMainAfter:5 task:^{
+            [self.replaySubject sendNext:@(2)];
+            [xTask asyncMainAfter:5 task:^{
+                [self.replaySubject sendError:nil];
+                [self.replaySubject subscribeNext:^(id  _Nullable x) {
+                    NSLog(@"second subscribe - get subject value: %@ thread: %@", x, [NSThread currentThread]);
+                } error:^(NSError * _Nullable error) {
+                    NSLog(@"second subscribe - get subject error thread: %@", [NSThread currentThread]);
+                } completed:^{
+                    NSLog(@"second subscribe - get subject completed thread: %@", [NSThread currentThread]);
+                }];
+                [xTask asyncMainAfter:5 task:^{
+                    // you can sendNext(:) after call sendCompleted() or sendError(:)
+                    // the value will add to subject anyway, but the state will not change, still completed or error.
+                    [self.replaySubject sendNext:@(3)];
+                    // call sendCompleted() will override previous sendError(:)
+                    // but call sendError(:) will not override previous sendCompleted()
+                    [self.replaySubject sendCompleted];
+                    [self.replaySubject subscribeNext:^(id  _Nullable x) {
                         NSLog(@"third subscribe - get subject value: %@ thread: %@", x, [NSThread currentThread]);
                     } error:^(NSError * _Nullable error) {
                         NSLog(@"third subscribe - get subject error thread: %@", [NSThread currentThread]);
