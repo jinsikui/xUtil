@@ -12,6 +12,8 @@ def common
   pod 'Masonry'
   pod 'xUI', :git => "https://github.com/jinsikui/xUI.git", :branch => 'master'
   pod 'ReactiveObjC'
+  pod 'ReactiveCocoa'
+  pod 'ReactiveObjCBridge'
 end
 
 target 'xUtil' do

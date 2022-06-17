@@ -7,11 +7,12 @@
 
 
 @interface MainViewController ()
-@property(nonatomic,strong) UIScrollView *scroll;
-@property (nonatomic, assign) CGFloat currentY;
-@property(nonatomic,strong) RACSignal *signal;
-@property(nonatomic,strong) RACSubject *subject;
-@property(nonatomic,strong) RACReplaySubject *replaySubject;
+@property(nonatomic, strong) UIScrollView *scroll;
+@property(nonatomic, assign) CGFloat currentY;
+@property(nonatomic, strong) RACSignal *signal;
+@property(nonatomic, strong) RACSubject *subject;
+@property(nonatomic, strong) RACReplaySubject *replaySubject;
+@property(nonatomic, strong) NSDate *createTime;
 @end
 
 @implementation MainViewController
@@ -20,8 +21,13 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.currentY = 30;
+        self.createTime = [NSDate date];
     }
     return self;
+}
+
+- (void)dealloc {
+    NSLog(@"page(%@) dealloc", self.createTime);
 }
 
 - (void)viewDidLoad {
@@ -45,6 +51,9 @@
     [self addBtn:@"RACDeliver" selector:@selector(actionRACDeliver)];
     [self addBtn:@"RACSubject" selector:@selector(actionRACSubject)];
     [self addBtn:@"RACReplaySubject" selector:@selector(actionRACReplaySubject)];
+    [self addBtn:@"RAC register notification" selector:@selector(actionRACRegisterNotification)];
+    [self addBtn:@"Post Notification" selector:@selector(actionPostNotification)];
+    [self addBtn:@"push page again" selector:@selector(actionPushMain)];
     _scroll.contentSize = CGSizeMake(0, self.currentY);
 }
 
@@ -61,6 +70,34 @@
 
 -(void)actionHellow{
     NSLog(@"hellow");
+}
+
+-(void)actionPushMain {
+    MainViewController *main = [[MainViewController alloc] init];
+    [self.navigationController pushViewController:main animated:true];
+}
+
+-(void)actionPostNotification {
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"test-notification" object:nil];
+}
+
+-(void)actionRACRegisterNotification {
+    @weakify(self)
+      // wrong! after self dealloc, the observer is still registerred!
+//    [[[NSNotificationCenter defaultCenter] rac_addObserverForName:@"test-notification" object:nil] subscribeNext:^(NSNotification * _Nullable x) {
+//        @strongify(self)
+//        NSLog(@"page(%@) receive test-notification", self.createTime);
+//    }];
+       // correct!
+//     [self.rac_deallocDisposable addDisposable:[[[NSNotificationCenter defaultCenter] rac_addObserverForName:@"test-notification" object:nil] subscribeNext:^(NSNotification * _Nullable x) {
+//         @strongify(self)
+//         NSLog(@"page(%@) receive test-notification", self.createTime);
+//     }]];
+    // correct too!
+    [[[[NSNotificationCenter defaultCenter] rac_addObserverForName:@"test-notification" object:nil] takeUntil:self.rac_willDeallocSignal] subscribeNext:^(NSNotification * _Nullable x) {
+        @strongify(self)
+        NSLog(@"page(%@) receive test-notification", self.createTime);
+    }];
 }
 
 -(void)actionRACDeliver{
