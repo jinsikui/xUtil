@@ -1,10 +1,11 @@
 # Uncomment the next line to define a global platform for your project
 # platform :ios, '9.0'
+use_frameworks!
 
 def common
   pod 'KVOController'
   pod 'PromisesObjC'
-  pod 'YYText'
+  pod 'YYKit'
   pod 'SocketRocket'
   pod 'SDWebImage'
   pod 'AFNetworking', '~>4.0.0'

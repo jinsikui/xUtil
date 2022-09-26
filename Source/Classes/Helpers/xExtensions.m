@@ -2,9 +2,9 @@
 
 #import "xExtensions.h"
 #if __has_include(<YYText/YYText.h>)
-#import <YYText/YYText.h>
+#import <YYKit/YYKit.h>
 #else
-#import "YYText.h"
+#import "YYKit.h"
 #endif
 #if __has_include(<SDWebImage/UIImageView+WebCache.h>)
 #import <SDWebImage/UIImageView+WebCache.h>
@@ -460,13 +460,13 @@
     f.size = size;
     imageView.frame = f;
     [imageView sd_setImageWithURL:[NSURL URLWithString:url]];
-    NSMutableAttributedString *imgAttr = [NSMutableAttributedString yy_attachmentStringWithContent:imageView contentMode:UIViewContentModeCenter attachmentSize:size alignToFont:font alignment:YYTextVerticalAlignmentCenter];
+    NSMutableAttributedString *imgAttr = [NSMutableAttributedString attachmentStringWithContent:imageView contentMode:UIViewContentModeCenter attachmentSize:size alignToFont:font alignment:YYTextVerticalAlignmentCenter];
     [self appendAttributedString:imgAttr];
     return self;
 }
 
 - (NSMutableAttributedString*)x_appendView:(UIView*)view alignToFont:(UIFont*)font{
-    NSMutableAttributedString *attr = [NSMutableAttributedString yy_attachmentStringWithContent:view contentMode:UIViewContentModeCenter attachmentSize:view.bounds.size alignToFont:font alignment:YYTextVerticalAlignmentCenter];
+    NSMutableAttributedString *attr = [NSMutableAttributedString attachmentStringWithContent:view contentMode:UIViewContentModeCenter attachmentSize:view.bounds.size alignToFont:font alignment:YYTextVerticalAlignmentCenter];
     [self appendAttributedString:attr];
     return self;
 }
@@ -479,7 +479,7 @@
     CGRect f = imageView.frame;
     f.size = img.size;
     imageView.frame = f;
-    NSMutableAttributedString *imgAttr = [NSMutableAttributedString yy_attachmentStringWithContent:imageView contentMode:UIViewContentModeCenter attachmentSize:img.size alignToFont:font alignment:YYTextVerticalAlignmentCenter];
+    NSMutableAttributedString *imgAttr = [NSMutableAttributedString attachmentStringWithContent:imageView contentMode:UIViewContentModeCenter attachmentSize:img.size alignToFont:font alignment:YYTextVerticalAlignmentCenter];
     [self appendAttributedString:imgAttr];
     return self;
 }
@@ -492,7 +492,7 @@
     CGRect f = imageView.frame;
     f.size = size;
     imageView.frame = f;
-    NSMutableAttributedString *imgAttr = [NSMutableAttributedString yy_attachmentStringWithContent:imageView contentMode:UIViewContentModeCenter attachmentSize:img.size alignToFont:font alignment:YYTextVerticalAlignmentCenter];
+    NSMutableAttributedString *imgAttr = [NSMutableAttributedString attachmentStringWithContent:imageView contentMode:UIViewContentModeCenter attachmentSize:img.size alignToFont:font alignment:YYTextVerticalAlignmentCenter];
     [self appendAttributedString:imgAttr];
     return self;
 }
@@ -505,7 +505,7 @@
     CGRect f = imageView.frame;
     f.size = CGSizeMake(img.size.width*scale,img.size.height*scale);
     imageView.frame = f;
-    NSMutableAttributedString *imgAttr = [NSMutableAttributedString yy_attachmentStringWithContent:imageView contentMode:UIViewContentModeCenter attachmentSize:img.size alignToFont:font alignment:YYTextVerticalAlignmentCenter];
+    NSMutableAttributedString *imgAttr = [NSMutableAttributedString attachmentStringWithContent:imageView contentMode:UIViewContentModeCenter attachmentSize:img.size alignToFont:font alignment:YYTextVerticalAlignmentCenter];
     [self appendAttributedString:imgAttr];
     return self;
 }

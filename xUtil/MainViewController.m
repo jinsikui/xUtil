@@ -6,7 +6,9 @@
 #import "ReactiveObjC.h"
 
 
-@interface MainViewController ()
+@interface MainViewController () {
+    BOOL _isLoading;
+}
 @property(nonatomic, strong) UIScrollView *scroll;
 @property(nonatomic, assign) CGFloat currentY;
 @property(nonatomic, strong) RACSignal *signal;
@@ -54,6 +56,7 @@
     [self addBtn:@"RAC register notification" selector:@selector(actionRACRegisterNotification)];
     [self addBtn:@"Post Notification" selector:@selector(actionPostNotification)];
     [self addBtn:@"push page again" selector:@selector(actionPushMain)];
+    [self addBtn:@"CABasicAnimation" selector:@selector(actionCABasicAnimation)];
     _scroll.contentSize = CGSizeMake(0, self.currentY);
 }
 
@@ -70,6 +73,44 @@
 
 -(void)actionHellow{
     NSLog(@"hellow");
+}
+
+-(void)actionCABasicAnimation {
+    UIView *view = [UIView new];
+    view.backgroundColor = UIColor.redColor;
+    view.frame = CGRectMake(100, 100, 100, 100);
+    view.tag = 1234;
+    [self.view addSubview:view];
+    [self startLoading];
+}
+
+static NSString *loadingAnimationKey = @"loadingAnimation";
+
+- (void)startLoading {
+    if (_isLoading) {
+        return;
+    }
+    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    animation.fromValue = @(0.5);
+    animation.toValue = @(1);
+    animation.duration = 1;
+    animation.repeatCount = HUGE_VALF;
+    animation.autoreverses = true;
+    [[self.view viewWithTag:1234].layer addAnimation:animation forKey:loadingAnimationKey];
+    _isLoading = true;
+    
+    [xTask asyncMainAfter:5 task:^{
+        [self stopLoading];
+    }];
+}
+
+- (void)stopLoading {
+    [[self.view viewWithTag:1234].layer removeAnimationForKey:loadingAnimationKey];
+    _isLoading = false;
+}
+
+- (BOOL)isLoading {
+    return _isLoading;
 }
 
 -(void)actionPushMain {

@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
   s.source_files = 'Source/Classes/xUtil.h'
   s.dependency 'KVOController'
   s.dependency 'PromisesObjC'
-  s.dependency 'YYText'
+  s.dependency 'YYKit'
   s.dependency 'SocketRocket'
   s.dependency 'SDWebImage'
   s.dependency 'AFNetworking', '~> 4.0.0'
