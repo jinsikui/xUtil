@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
 
   s.name             = 'xUtil'
-  s.version          = '2.1.0.0'
+  s.version          = '2.2.0.0'
   s.summary          = 'UI无关基础组件库'
 
   s.description      = <<-DESC
