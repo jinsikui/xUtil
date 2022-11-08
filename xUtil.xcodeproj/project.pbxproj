@@ -84,6 +84,8 @@
 		6331E30C27F4846D001DFB95 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6331E30B27F4846D001DFB95 /* Assets.xcassets */; };
 		6331E30F27F4846D001DFB95 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6331E30D27F4846D001DFB95 /* LaunchScreen.storyboard */; };
 		6331E31227F4846D001DFB95 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6331E31127F4846D001DFB95 /* main.m */; };
+		63D9197A2902865F00C7C965 /* Arial-Rounded-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 63D919792902865F00C7C965 /* Arial-Rounded-Bold.ttf */; };
+		63D9197D2902926800C7C965 /* CustomLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 63D9197C2902926800C7C965 /* CustomLabel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -187,6 +189,9 @@
 		6331E43D27F49D4D001DFB95 /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		6331E43E27F49D4D001DFB95 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		6331E43F27F49D59001DFB95 /* xUtil.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = xUtil.podspec; sourceTree = "<group>"; };
+		63D919792902865F00C7C965 /* Arial-Rounded-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Arial-Rounded-Bold.ttf"; sourceTree = "<group>"; };
+		63D9197B2902926800C7C965 /* CustomLabel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CustomLabel.h; sourceTree = "<group>"; };
+		63D9197C2902926800C7C965 /* CustomLabel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomLabel.m; sourceTree = "<group>"; };
 		9F6D8BC95DEE3DE14B92BCA7 /* Pods-xUtilTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-xUtilTests.debug.xcconfig"; path = "Target Support Files/Pods-xUtilTests/Pods-xUtilTests.debug.xcconfig"; sourceTree = "<group>"; };
 		D1C1CAB6D91A597EE640916A /* Pods-xUtil.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-xUtil.debug.xcconfig"; path = "Target Support Files/Pods-xUtil/Pods-xUtil.debug.xcconfig"; sourceTree = "<group>"; };
 		FCDD53BE4FE263C304B54065 /* Pods_xUtil.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_xUtil.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -331,6 +336,7 @@
 		6331E2FE27F4846B001DFB95 /* xUtil */ = {
 			isa = PBXGroup;
 			children = (
+				63D919792902865F00C7C965 /* Arial-Rounded-Bold.ttf */,
 				6307EA7127F557C400D1DFE6 /* MainViewController.h */,
 				6307EA7227F557C400D1DFE6 /* MainViewController.m */,
 				6331E2FF27F4846B001DFB95 /* AppDelegate.h */,
@@ -339,6 +345,8 @@
 				6331E30D27F4846D001DFB95 /* LaunchScreen.storyboard */,
 				6331E31027F4846D001DFB95 /* Info.plist */,
 				6331E31127F4846D001DFB95 /* main.m */,
+				63D9197B2902926800C7C965 /* CustomLabel.h */,
+				63D9197C2902926800C7C965 /* CustomLabel.m */,
 			);
 			path = xUtil;
 			sourceTree = "<group>";
@@ -479,6 +487,7 @@
 				6307EA7527F557C400D1DFE6 /* bye.mp3 in Resources */,
 				6331E30F27F4846D001DFB95 /* LaunchScreen.storyboard in Resources */,
 				6331E30C27F4846D001DFB95 /* Assets.xcassets in Resources */,
+				63D9197A2902865F00C7C965 /* Arial-Rounded-Bold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -580,6 +589,7 @@
 				6307E99527F53F2100D1DFE6 /* xDevice.m in Sources */,
 				6307E98F27F53F2100D1DFE6 /* xExtensions.m in Sources */,
 				6307E98927F53F2100D1DFE6 /* xTimer.m in Sources */,
+				63D9197D2902926800C7C965 /* CustomLabel.m in Sources */,
 				6307E99F27F53F2100D1DFE6 /* xAVAudioPlayer.m in Sources */,
 				6307E98D27F53F2100D1DFE6 /* xFile.m in Sources */,
 				6307E98527F53F2100D1DFE6 /* xTask.m in Sources */,

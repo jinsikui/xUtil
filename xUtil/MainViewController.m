@@ -4,10 +4,14 @@
 #import "xUI.h"
 #import "Masonry.h"
 #import "ReactiveObjC.h"
+#import "CustomLabel.h"
 
 
 @interface MainViewController () {
     BOOL _isLoading;
+    int _indicater;
+    RACSubject *_letters;
+    RACSubject *_numbers;
 }
 @property(nonatomic, strong) UIScrollView *scroll;
 @property(nonatomic, assign) CGFloat currentY;
@@ -15,6 +19,9 @@
 @property(nonatomic, strong) RACSubject *subject;
 @property(nonatomic, strong) RACReplaySubject *replaySubject;
 @property(nonatomic, strong) NSDate *createTime;
+@property(nonatomic, assign) CGSize targetSize;
+@property(nonatomic, assign) CGRect targetFrame;
+@property(nonatomic, assign) NSString *testProp;
 @end
 
 @implementation MainViewController
@@ -48,7 +55,6 @@
     [_scroll mas_makeConstraints:^(MASConstraintMaker *make) {
         make.edges.mas_equalTo(0);
     }];
-    
     [self addBtn:@"hellow" selector:@selector(actionHellow)];
     [self addBtn:@"RACDeliver" selector:@selector(actionRACDeliver)];
     [self addBtn:@"RACSubject" selector:@selector(actionRACSubject)];
@@ -57,6 +63,15 @@
     [self addBtn:@"Post Notification" selector:@selector(actionPostNotification)];
     [self addBtn:@"push page again" selector:@selector(actionPushMain)];
     [self addBtn:@"CABasicAnimation" selector:@selector(actionCABasicAnimation)];
+    [self addBtn:@"RAC binding" selector:@selector(actionRACBinding)];
+    [self addBtn:@"New Font" selector:@selector(actionNewFont)];
+    [self addBtn:@"RAC CombineLatest" selector:@selector(actionRACCombineLatest)];
+    [self addBtn:@"RAC Signal lifetime" selector:@selector(actionRACSignalLifetime)];
+    [self addBtn:@"RAC merge" selector:@selector(actionRACMerge)];
+    
+    RAC(self, targetSize) = [[RACObserve(self.scroll, frame) map:^id _Nullable(id  _Nullable value) {
+        return @([value CGRectValue].size);
+    }] distinctUntilChanged];
     _scroll.contentSize = CGSizeMake(0, self.currentY);
 }
 
@@ -70,6 +85,101 @@
 }
 
 #pragma mark - Actions
+
+-(void)actionRACMerge {
+    RACSubject *s1 = [RACSubject subject];
+    RACSubject *s2 = [RACSubject subject];
+    [[RACSignal merge:@[s1, s2]] subscribeNext:^(id  _Nullable x) {
+        NSLog(@"%@", x);
+    }];
+    [s1 sendNext:@(1)];
+    [s1 sendNext:@(2)];
+    [s2 sendNext:@"A"];
+}
+
+
+-(void)actionRACSignalLifetime {
+    [_letters sendNext:@"D"];
+    [_numbers sendNext:@"4"];
+    self.testProp = @"JSK";
+}
+
+-(void)actionRACCombineLatest {
+    [self.rac_willDeallocSignal subscribeCompleted:^{
+        NSLog(@"MainViewController dealloc");
+    }];
+    _letters = [RACSubject subject];
+    _numbers = [RACSubject subject];
+     [_letters.rac_willDeallocSignal subscribeCompleted:^{
+        NSLog(@"_letters signal dealloc");
+    }];
+     [_numbers.rac_willDeallocSignal subscribeCompleted:^{
+        NSLog(@"_numbers signal dealloc");
+    }];
+    RACSignal *kvoSignal = RACObserve(self, testProp);
+    [kvoSignal.rac_willDeallocSignal subscribeCompleted:^{
+        NSLog(@"kvo signal dealloc");
+    }];
+    RACSignal *combined = [RACSignal
+                           combineLatest:@[ _letters, _numbers, kvoSignal]];
+
+    // Outputs: B1 B2 C2 C3
+    [combined subscribeNext:^(id x) {
+        RACTuple *tuple = (RACTuple*)x;
+        NSLog(@"%@%@%@", tuple.first, tuple.second, tuple.third);
+    }];
+    [combined.rac_willDeallocSignal subscribeCompleted:^{
+        NSLog(@"combined signal dealloc");
+    }];
+    [_letters sendNext:@"A"];
+    [_letters sendNext:@"B"];
+    [_numbers sendNext:@"1"];
+    [_numbers sendNext:@"2"];
+    [_letters sendNext:@"C"];
+    [_numbers sendNext:@"3"];
+    
+    // Outputs: kvo signal dealloc
+    //          combined signal dealloc
+    // but when you call actionRACSignalLifetime(), the signal function still work well, amazing!
+}
+
+-(void)actionNewFont {
+    NSLog(@"===== %@", [UIFont familyNames]);
+    CustomLabel *label = [[CustomLabel alloc] init];
+    UIFont *font = [UIFont fontWithName:@"Arial Rounded MT Bold" size:40];
+    label.font = font;
+    label.text = @"15";
+    [self.view addSubview:label];
+    [label mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(100);
+        make.top.mas_equalTo(100);
+    }];
+    
+}
+
+-(void)setTargetSize:(CGSize)targetSize{
+    NSLog(@"===== setTargetSize: %@", @(targetSize));
+    _targetSize = targetSize;
+}
+
+-(void)setTargetFrame:(CGRect)targetFrame{
+    NSLog(@"===== setTargetFrame: %@", @(targetFrame));
+    _targetFrame = targetFrame;
+}
+
+-(void)actionRACBinding {
+    CGRect frame = self.scroll.frame;
+    if(_indicater == 0) {
+        frame.size.height = 1000;
+        _indicater = 1;
+    }
+    else {
+        frame.size.height = 2000;
+        _indicater = 0;
+    }
+    self.scroll.frame = frame;
+    self.scroll.frame = frame; // 会被过滤掉
+}
 
 -(void)actionHellow{
     NSLog(@"hellow");
