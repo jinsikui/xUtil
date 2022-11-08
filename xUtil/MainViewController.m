@@ -4,7 +4,6 @@
 #import "xUI.h"
 #import "Masonry.h"
 #import "ReactiveObjC.h"
-#import "CustomLabel.h"
 
 
 @interface MainViewController () {
@@ -13,6 +12,8 @@
     RACSubject *_letters;
     RACSubject *_numbers;
     RACDisposable *_finalDisposable;
+    RACSubject<NSString*> *_throttleSubject;
+    RACSignal<NSString*> *_throttleSignal;
 }
 @property(nonatomic, strong) UIScrollView *scroll;
 @property(nonatomic, assign) CGFloat currentY;
@@ -72,6 +73,8 @@
     [self addBtn:@"RAC flattenMap" selector:@selector(actionFlattenMap)];
     [self addBtn:@"RAC flattenMap dispose" selector:@selector(actionFlattenMapDispose)];
     [self addBtn:@"RAC then" selector:@selector(actionRACThen)];
+    [self addBtn:@"RAC throttle" selector:@selector(actionRACThrottle)];
+    [self addBtn:@"RAC throttle trigger" selector:@selector(actionRACThrottleTrigger)];
     
     RAC(self, targetSize) = [[RACObserve(self.scroll, frame) map:^id _Nullable(id  _Nullable value) {
         return @([value CGRectValue].size);
@@ -89,6 +92,18 @@
 }
 
 #pragma mark - Actions
+
+-(void)actionRACThrottleTrigger {
+    [_throttleSubject sendNext:[NSString stringWithFormat:@"AAA%@",[NSDate date]]];
+}
+
+-(void)actionRACThrottle {
+    _throttleSubject = [RACSubject subject];
+    _throttleSignal = [_throttleSubject throttle:0.5];
+    [_throttleSignal subscribeNext:^(id  _Nullable x) {
+        NSLog(@"throttle subject: %@", x);
+    }];
+}
 
 -(void)actionRACMerge {
     RACSubject *s1 = [RACSubject subject];
@@ -149,7 +164,7 @@
 
 -(void)actionNewFont {
     NSLog(@"===== %@", [UIFont familyNames]);
-    CustomLabel *label = [[CustomLabel alloc] init];
+    UILabel *label = [[UILabel alloc] init];
     UIFont *font = [UIFont fontWithName:@"Arial Rounded MT Bold" size:40];
     label.font = font;
     label.text = @"15";
@@ -183,10 +198,6 @@
     }
     self.scroll.frame = frame;
     self.scroll.frame = frame; // 会被过滤掉
-}
-
--(void)actionHellow{
-    NSLog(@"hellow");
 }
 
 -(void)actionCABasicAnimation {
@@ -225,7 +236,7 @@ static NSString *loadingAnimationKey = @"loadingAnimation";
 
 - (BOOL)isLoading {
     return _isLoading;
-
+}
 
 -(void)actionRACThen {
     /**
