@@ -12,6 +12,7 @@
     int _indicater;
     RACSubject *_letters;
     RACSubject *_numbers;
+    RACDisposable *_finalDisposable;
 }
 @property(nonatomic, strong) UIScrollView *scroll;
 @property(nonatomic, assign) CGFloat currentY;
@@ -68,6 +69,9 @@
     [self addBtn:@"RAC CombineLatest" selector:@selector(actionRACCombineLatest)];
     [self addBtn:@"RAC Signal lifetime" selector:@selector(actionRACSignalLifetime)];
     [self addBtn:@"RAC merge" selector:@selector(actionRACMerge)];
+    [self addBtn:@"RAC flattenMap" selector:@selector(actionFlattenMap)];
+    [self addBtn:@"RAC flattenMap dispose" selector:@selector(actionFlattenMapDispose)];
+    [self addBtn:@"RAC then" selector:@selector(actionRACThen)];
     
     RAC(self, targetSize) = [[RACObserve(self.scroll, frame) map:^id _Nullable(id  _Nullable value) {
         return @([value CGRectValue].size);
@@ -221,6 +225,180 @@ static NSString *loadingAnimationKey = @"loadingAnimation";
 
 - (BOOL)isLoading {
     return _isLoading;
+
+
+-(void)actionRACThen {
+    /**
+     (无error版本：)
+     2022-11-05 22:28:51.540076+0800 xUtil[84490:5830984] firstLevel disposable created: 0x600003475980
+     2022-11-05 22:28:51.540508+0800 xUtil[84490:5830984] final disposable created: 0x600001d6a220
+     2022-11-05 22:29:01.071729+0800 xUtil[84490:5831097] firstLevel disposable block executed
+     2022-11-05 22:29:01.072268+0800 xUtil[84490:5831100] secondLevel disposable created: 0x600003460d50
+     2022-11-05 22:29:01.072678+0800 xUtil[84490:5831100] finalSignal.next: thenA
+     2022-11-05 22:29:03.205595+0800 xUtil[84490:5831100] finalSignal.next: thenB
+     2022-11-05 22:29:05.339183+0800 xUtil[84490:5831101] finalSignal.next: thenC
+     2022-11-05 22:29:05.339382+0800 xUtil[84490:5831101] secondLevel disposable block executed
+     2022-11-05 22:29:05.339539+0800 xUtil[84490:5831101] finalSignal.completed
+     
+     (secondLevel signal sendError版本：)
+     2022-11-05 22:44:40.039117+0800 xUtil[84836:5841417] firstLevel disposable created: 0x60000208c900
+     2022-11-05 22:44:40.039535+0800 xUtil[84836:5841417] final disposable created: 0x600000992290
+     2022-11-05 22:44:49.563445+0800 xUtil[84836:5841639] firstLevel disposable block executed
+     2022-11-05 22:44:49.564005+0800 xUtil[84836:5841640] secondLevel disposable created: 0x60000208c900
+     2022-11-05 22:44:49.564543+0800 xUtil[84836:5841640] finalSignal.next: thenA
+     2022-11-05 22:44:51.697547+0800 xUtil[84836:5841640] finalSignal.next: thenB
+     2022-11-05 22:44:53.820866+0800 xUtil[84836:5841640] secondLevel disposable block executed
+     2022-11-05 22:44:53.821337+0800 xUtil[84836:5841640] finalSignal.error: (null)
+     
+     结论：
+     1. 1级signal执行完毕才会开始2级signal的执行，但是不会将1级signal的value传给2级
+     2. 会自动在两级完成时执行两级各自的disposable的block
+     3. 任何一级sendError都会导致final error，sendError后所在级的disposable的block也会执行
+     */
+    RACSignal<NSString*> *finalSignal = [[self _createFirstLevelSignal] then:^RACSignal * _Nonnull{
+        return [self _createSecondLevelSignal:@"then"];
+    }];
+    _finalDisposable = [finalSignal subscribeNext:^(NSString * _Nullable x) {
+        NSLog(@"finalSignal.next: %@", x);
+    } error:^(NSError * _Nullable error) {
+        NSLog(@"finalSignal.error: %@", error);
+    } completed:^{
+        NSLog(@"finalSignal.completed");
+    }];
+    NSLog(@"final disposable created: %p", _finalDisposable);
+}
+
+-(void)actionFlattenMapDispose {
+    [_finalDisposable dispose];
+}
+
+-(void)actionFlattenMap {
+    /**
+     (启动后一会手动按了"RAC flattenMap dispose"按钮： )
+     2022-11-05 22:15:42.667677+0800 xUtil[84254:5823271] firstLevel disposable created: 0x600002d11290
+     2022-11-05 22:15:42.667824+0800 xUtil[84254:5823271] secondLevel disposable created: 0x600002d11280
+     2022-11-05 22:15:42.667958+0800 xUtil[84254:5823271] finalSignal.next: 1A
+     2022-11-05 22:15:42.668564+0800 xUtil[84254:5823271] final disposable created: 0x60000040a7d0
+     2022-11-05 22:15:44.761826+0800 xUtil[84254:5823400] finalSignal.next: 1B
+     2022-11-05 22:15:45.800752+0800 xUtil[84254:5823400] secondLevel disposable created: 0x600002d150e0
+     2022-11-05 22:15:45.800927+0800 xUtil[84254:5823400] finalSignal.next: 2A
+     2022-11-05 22:15:46.882181+0800 xUtil[84254:5823400] finalSignal.next: 1C
+     2022-11-05 22:15:46.882460+0800 xUtil[84254:5823400] secondLevel disposable block executed
+     2022-11-05 22:15:47.459915+0800 xUtil[84254:5823271] firstLevel disposable block executed
+     2022-11-05 22:15:47.460288+0800 xUtil[84254:5823271] secondLevel disposable block executed
+     2022-11-05 22:15:47.909917+0800 xUtil[84254:5823400] secondLevel signal see disposed
+     2022-11-05 22:15:49.000257+0800 xUtil[84254:5823402] firstLevel signal see disposed
+     
+     (启动后未手动按"RAC flattenMap dispose"按钮：)
+     2022-11-05 22:33:52.107279+0800 xUtil[84575:5833858] firstLevel disposable created: 0x60000097da00
+     2022-11-05 22:33:52.107569+0800 xUtil[84575:5833858] secondLevel disposable created: 0x6000009743f0
+     2022-11-05 22:33:52.107786+0800 xUtil[84575:5833858] finalSignal.next: 1A
+     2022-11-05 22:33:52.108087+0800 xUtil[84575:5833858] final disposable created: 0x600002073870
+     2022-11-05 22:33:54.108370+0800 xUtil[84575:5833973] finalSignal.next: 1B
+     2022-11-05 22:33:55.257946+0800 xUtil[84575:5834329] secondLevel disposable created: 0x600000965010
+     2022-11-05 22:33:55.258191+0800 xUtil[84575:5834329] finalSignal.next: 2A
+     2022-11-05 22:33:56.218956+0800 xUtil[84575:5834329] finalSignal.next: 1C
+     2022-11-05 22:33:56.219339+0800 xUtil[84575:5834329] secondLevel disposable block executed
+     2022-11-05 22:33:57.388128+0800 xUtil[84575:5834329] finalSignal.next: 2B
+     2022-11-05 22:33:58.458231+0800 xUtil[84575:5834329] secondLevel disposable created: 0x600000978460
+     2022-11-05 22:33:58.458671+0800 xUtil[84575:5834329] finalSignal.next: 3A
+     2022-11-05 22:33:59.513361+0800 xUtil[84575:5834329] finalSignal.next: 2C
+     2022-11-05 22:33:59.513969+0800 xUtil[84575:5834329] secondLevel disposable block executed
+     2022-11-05 22:34:00.590298+0800 xUtil[84575:5833973] finalSignal.next: 3B
+     2022-11-05 22:34:01.657314+0800 xUtil[84575:5834329] firstLevel disposable block executed
+     2022-11-05 22:34:01.657369+0800 xUtil[84575:5833973] secondLevel disposable created: 0x60000097d9b0
+     2022-11-05 22:34:01.657668+0800 xUtil[84575:5833973] finalSignal.next: 4A
+     2022-11-05 22:34:02.696151+0800 xUtil[84575:5833973] finalSignal.next: 3C
+     2022-11-05 22:34:02.696558+0800 xUtil[84575:5833973] secondLevel disposable block executed
+     2022-11-05 22:34:03.766617+0800 xUtil[84575:5833973] finalSignal.next: 4B
+     2022-11-05 22:34:05.886655+0800 xUtil[84575:5833973] finalSignal.next: 4C
+     2022-11-05 22:34:05.886934+0800 xUtil[84575:5833973] secondLevel disposable block executed
+     2022-11-05 22:34:05.887144+0800 xUtil[84575:5833973] finalSignal.completed
+     
+     结论：
+     1.无论是1级还是2级，sendError都会立刻导致finalSignal error
+     2.final disposable是flattenMap自动生成的，对它的操作会立刻传给两级level的disposable，然后两级level各自的signal就可以响应
+     3. 如果不主动dispose finalDisposable，系统会自动在2级signal完成时执行secondDisposable的block（自动调了secondDisposable.dispose()?）
+     */
+    RACSignal<NSString*> *finalSignal = [[self _createFirstLevelSignal] flattenMap:^__kindof RACSignal * _Nullable(id  _Nullable value) {
+        return [self _createSecondLevelSignal:value];
+    }];
+    _finalDisposable = [finalSignal subscribeNext:^(NSString * _Nullable x) {
+        NSLog(@"finalSignal.next: %@", x);
+    } error:^(NSError * _Nullable error) {
+        NSLog(@"finalSignal.error: %@", error);
+    } completed:^{
+        NSLog(@"finalSignal.completed");
+    }];
+    NSLog(@"final disposable created: %p", _finalDisposable);
+}
+
+-(RACSignal<NSString*> *)_createFirstLevelSignal {
+    RACSignal<NSString*> *signal = [RACSignal createSignal:^RACDisposable * _Nullable(id<RACSubscriber>  _Nonnull subscriber) {
+        RACDisposable *disposable = [RACDisposable disposableWithBlock:^{
+            NSLog(@"firstLevel disposable block executed");
+        }];
+        NSLog(@"firstLevel disposable created: %p", disposable);
+        [subscriber sendNext:@"1"];
+        [xTask asyncGlobalAfter:3 task:^{
+            if (disposable.isDisposed) {
+                NSLog(@"firstLevel signal see disposed");
+                [subscriber sendCompleted];
+                return;
+            }
+            [subscriber sendNext:@"2"];
+            [xTask asyncGlobalAfter:3 task:^{
+                if (disposable.isDisposed) {
+                    NSLog(@"firstLevel signal see disposed");
+                    [subscriber sendCompleted];
+                    return;
+                }
+                [subscriber sendNext:@"3"];
+                [xTask asyncGlobalAfter:3 task:^{
+                    if (disposable.isDisposed) {
+                        NSLog(@"firstLevel signal see disposed");
+                        [subscriber sendCompleted];
+                        return;
+                    }
+                    [subscriber sendNext:@"4"];
+                    [subscriber sendCompleted];
+//                    [subscriber sendError:nil]; // 此句可替换上面两句来做试验
+                }];
+            }];
+        }];
+        return disposable;
+    }];
+    return signal;
+}
+
+-(RACSignal<NSString*> *)_createSecondLevelSignal:(NSString*)firstSignalValue {
+    RACSignal<NSString*> *signal = [RACSignal createSignal:^RACDisposable * _Nullable(id<RACSubscriber>  _Nonnull subscriber) {
+        RACDisposable *disposable = [RACDisposable disposableWithBlock:^{
+            NSLog(@"secondLevel disposable block executed");
+        }];
+        NSLog(@"secondLevel disposable created: %p", disposable);
+        [subscriber sendNext:[NSString stringWithFormat:@"%@A", firstSignalValue]];
+        [xTask asyncGlobalAfter:2 task:^{
+            if (disposable.isDisposed) {
+                NSLog(@"secondLevel signal see disposed");
+                [subscriber sendCompleted];
+                return;
+            }
+            [subscriber sendNext:[NSString stringWithFormat:@"%@B", firstSignalValue]];
+            [xTask asyncGlobalAfter:2 task:^{
+                if (disposable.isDisposed) {
+                    NSLog(@"secondLevel signal see disposed");
+                    [subscriber sendCompleted];
+                    return;
+                }
+                [subscriber sendNext:[NSString stringWithFormat:@"%@C", firstSignalValue]];
+                [subscriber sendCompleted];
+//                [subscriber sendError:nil]; // 此句可替换上面两句来做试验
+            }];
+        }];
+        return disposable;
+    }];
+    return signal;
 }
 
 -(void)actionPushMain {
@@ -377,4 +555,8 @@ static NSString *loadingAnimationKey = @"loadingAnimation";
     }];
 }
 
+-(void)actionHellow {
+    NSLog(@"hellow");
+}
+    
 @end
