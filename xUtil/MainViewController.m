@@ -5,6 +5,13 @@
 #import "Masonry.h"
 #import "ReactiveObjC.h"
 
+@interface SubModel : NSObject
+@property(nonatomic, assign) CGFloat width;
+@end
+
+@implementation SubModel
+@end
+
 
 @interface MainViewController () {
     BOOL _isLoading;
@@ -24,6 +31,9 @@
 @property(nonatomic, assign) CGSize targetSize;
 @property(nonatomic, assign) CGRect targetFrame;
 @property(nonatomic, assign) NSString *testProp;
+// 测试绑定
+@property(nonatomic, strong) SubModel *subModel;
+@property(nonatomic, assign) CGFloat width;
 @end
 
 @implementation MainViewController
@@ -75,6 +85,8 @@
     [self addBtn:@"RAC then" selector:@selector(actionRACThen)];
     [self addBtn:@"RAC throttle" selector:@selector(actionRACThrottle)];
     [self addBtn:@"RAC throttle trigger" selector:@selector(actionRACThrottleTrigger)];
+    [self addBtn:@"RAC throttle complete" selector:@selector(actionRACThrottleComplete)];
+    [self addBtn:@"RAC trigger/binding time" selector:@selector(actionRACTime)];
     
     RAC(self, targetSize) = [[RACObserve(self.scroll, frame) map:^id _Nullable(id  _Nullable value) {
         return @([value CGRectValue].size);
@@ -93,13 +105,46 @@
 
 #pragma mark - Actions
 
+- (void)actionRACTime {
+    /**
+     2022-12-05 15:19:44.030578+0800 xUtil[13648:2004758] actionRACTime, thread: <_NSMainThread: 0x600002b4c740>{number = 1, name = main}
+     2022-12-05 15:19:44.031759+0800 xUtil[13648:2004758] RACObserve(self, width).subscribeNext: self.width = 0, self.subModel.width = 0, thread: <_NSMainThread: 0x600002b4c740>{number = 1, name = main}
+     2022-12-05 15:19:44.032354+0800 xUtil[13648:2004758] RACObserve(self.subModel, width).subscribeNext: self.width = 0, self.subModel.width = 0, thread: <_NSMainThread: 0x600002b4c740>{number = 1, name = main}
+     2022-12-05 15:19:44.032560+0800 xUtil[13648:2004758] after setup observation: <_NSMainThread: 0x600002b4c740>{number = 1, name = main}
+     2022-12-05 15:19:47.032984+0800 xUtil[13648:2004981] before set width, thread: <NSThread: 0x600002b11b00>{number = 3, name = (null)}
+     2022-12-05 15:19:47.033618+0800 xUtil[13648:2004977] RACObserve(self, width).subscribeNext: self.width = 100, self.subModel.width = 0, thread: <NSThread: 0x600002b18440>{number = 4, name = (null)}
+     2022-12-05 15:19:47.033673+0800 xUtil[13648:2004981] after set width: self.width = 100, self.subModel.width = 0, thread: <NSThread: 0x600002b11b00>{number = 3, name = (null)}
+     2022-12-05 15:19:47.033996+0800 xUtil[13648:2004977] RACObserve(self.subModel, width).subscribeNext: self.width = 100, self.subModel.width = 100, thread: <NSThread: 0x600002b18440>{number = 4, name = (null)}
+     */
+    NSLog(@"actionRACTime, thread: %@", NSThread.currentThread);
+    self.subModel = [SubModel new];
+    RAC(self.subModel, width) = RACObserve(self, width);
+    [RACObserve(self, width) subscribeNext:^(id  _Nullable x) {
+        NSLog(@"RACObserve(self, width).subscribeNext: self.width = %@, self.subModel.width = %@, thread: %@", @(self.width), @(self.subModel.width), NSThread.currentThread);
+    }];
+    [RACObserve(self.subModel, width) subscribeNext:^(id  _Nullable x) {
+        NSLog(@"RACObserve(self.subModel, width).subscribeNext: self.width = %@, self.subModel.width = %@, thread: %@", @(self.width), @(self.subModel.width), NSThread.currentThread);
+    }];
+    NSLog(@"after setup observation: %@", NSThread.currentThread);
+    [xTask asyncGlobalAfter:3 task:^{
+        NSLog(@"before set width, thread: %@", NSThread.currentThread);
+        self.width = 100;
+        NSLog(@"after set width: self.width = %@, self.subModel.width = %@, thread: %@", @(self.width), @(self.subModel.width), NSThread.currentThread);
+    }];
+}
+
+// 发送complete之后，之前被throttle等待的sendNext会立刻发送出去
+-(void)actionRACThrottleComplete {
+    [_throttleSubject sendCompleted];
+}
+
 -(void)actionRACThrottleTrigger {
     [_throttleSubject sendNext:[NSString stringWithFormat:@"AAA%@",[NSDate date]]];
 }
 
 -(void)actionRACThrottle {
     _throttleSubject = [RACSubject subject];
-    _throttleSignal = [_throttleSubject throttle:0.5];
+    _throttleSignal = [_throttleSubject throttle:2];
     [_throttleSignal subscribeNext:^(id  _Nullable x) {
         NSLog(@"throttle subject: %@", x);
     }];
