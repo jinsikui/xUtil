@@ -87,6 +87,7 @@
     [self addBtn:@"RAC throttle trigger" selector:@selector(actionRACThrottleTrigger)];
     [self addBtn:@"RAC throttle complete" selector:@selector(actionRACThrottleComplete)];
     [self addBtn:@"RAC trigger/binding time" selector:@selector(actionRACTime)];
+    [self addBtn:@"RAC thread" selector:@selector(actionRACThread)];
     
     RAC(self, targetSize) = [[RACObserve(self.scroll, frame) map:^id _Nullable(id  _Nullable value) {
         return @([value CGRectValue].size);
@@ -104,6 +105,30 @@
 }
 
 #pragma mark - Actions
+
+- (void)actionRACThread {
+    /**
+     2022-12-17 20:32:43.428185+0800 xUtil[9977:1333403] trigger signal execute, thread: <NSThread: 0x60000345acc0>{number = 5, name = (null)}
+     2022-12-17 20:32:43.428629+0800 xUtil[9977:1333182] before sendNext, thread: <_NSMainThread: 0x600003454680>{number = 1, name = main}
+     2022-12-17 20:32:43.428770+0800 xUtil[9977:1333182] got new value: 1, thread: <_NSMainThread: 0x600003454680>{number = 1, name = main}
+     2022-12-17 20:32:43.428885+0800 xUtil[9977:1333182] after sendNext, thread: <_NSMainThread: 0x600003454680>{number = 1, name = main}
+     */
+    RACSignal<NSString*> *signal = [[[RACSignal createSignal:^RACDisposable * _Nullable(id<RACSubscriber>  _Nonnull subscriber) {
+        // subscribe on: <NSThread: 0x60000077e380>{number = 6, name = (null)}
+        NSLog(@"before sendNext, thread: %@", NSThread.currentThread);
+        [subscriber sendNext:@"1"];
+        NSLog(@"after sendNext, thread: %@", NSThread.currentThread);
+        [subscriber sendCompleted];
+        return nil;
+    }] subscribeOn:RACScheduler.mainThreadScheduler] deliverOnMainThread];
+
+    [xTask asyncGlobal:^{
+        NSLog(@"trigger signal execute, thread: %@", NSThread.currentThread);
+        [signal subscribeNext:^(NSString * _Nullable x) {
+            NSLog(@"got new value: %@, thread: %@", x, NSThread.currentThread);
+        }];
+    }];
+}
 
 - (void)actionRACTime {
     /**
