@@ -132,6 +132,7 @@
 
 - (void)actionRACTime {
     /**
+     在Global线程设置 self.width = 100:
      2022-12-05 15:19:44.030578+0800 xUtil[13648:2004758] actionRACTime, thread: <_NSMainThread: 0x600002b4c740>{number = 1, name = main}
      2022-12-05 15:19:44.031759+0800 xUtil[13648:2004758] RACObserve(self, width).subscribeNext: self.width = 0, self.subModel.width = 0, thread: <_NSMainThread: 0x600002b4c740>{number = 1, name = main}
      2022-12-05 15:19:44.032354+0800 xUtil[13648:2004758] RACObserve(self.subModel, width).subscribeNext: self.width = 0, self.subModel.width = 0, thread: <_NSMainThread: 0x600002b4c740>{number = 1, name = main}
@@ -140,6 +141,17 @@
      2022-12-05 15:19:47.033618+0800 xUtil[13648:2004977] RACObserve(self, width).subscribeNext: self.width = 100, self.subModel.width = 0, thread: <NSThread: 0x600002b18440>{number = 4, name = (null)}
      2022-12-05 15:19:47.033673+0800 xUtil[13648:2004981] after set width: self.width = 100, self.subModel.width = 0, thread: <NSThread: 0x600002b11b00>{number = 3, name = (null)}
      2022-12-05 15:19:47.033996+0800 xUtil[13648:2004977] RACObserve(self.subModel, width).subscribeNext: self.width = 100, self.subModel.width = 100, thread: <NSThread: 0x600002b18440>{number = 4, name = (null)}
+     */
+    /**
+     在main线程设置 self.width = 100:
+2022-12-26 10:53:02.496699+0800 xUtil[86308:13566778] actionRACTime, thread: <_NSMainThread: 0x600003f583c0>{number = 1, name = main}
+2022-12-26 10:53:02.497730+0800 xUtil[86308:13566778] RACObserve(self, width).subscribeNext: self.width = 0, self.subModel.width = 0, thread: <_NSMainThread: 0x600003f583c0>{number = 1, name = main}
+2022-12-26 10:53:02.498209+0800 xUtil[86308:13566778] RACObserve(self.subModel, width).subscribeNext: self.width = 0, self.subModel.width = 0, thread: <_NSMainThread: 0x600003f583c0>{number = 1, name = main}
+2022-12-26 10:53:02.498385+0800 xUtil[86308:13566778] after setup observation: <_NSMainThread: 0x600003f583c0>{number = 1, name = main}
+2022-12-26 10:53:05.792786+0800 xUtil[86308:13566778] before set width, thread: <_NSMainThread: 0x600003f583c0>{number = 1, name = main}
+2022-12-26 10:53:05.793295+0800 xUtil[86308:13566778] RACObserve(self, width).subscribeNext: self.width = 100, self.subModel.width = 0, thread: <_NSMainThread: 0x600003f583c0>{number = 1, name = main}
+2022-12-26 10:53:05.793742+0800 xUtil[86308:13566778] RACObserve(self.subModel, width).subscribeNext: self.width = 100, self.subModel.width = 100, thread: <_NSMainThread: 0x600003f583c0>{number = 1, name = main}
+2022-12-26 10:53:05.793985+0800 xUtil[86308:13566778] after set width: self.width = 100, self.subModel.width = 100, thread: <_NSMainThread: 0x600003f583c0>{number = 1, name = main}
      */
     NSLog(@"actionRACTime, thread: %@", NSThread.currentThread);
     self.subModel = [SubModel new];
@@ -151,7 +163,7 @@
         NSLog(@"RACObserve(self.subModel, width).subscribeNext: self.width = %@, self.subModel.width = %@, thread: %@", @(self.width), @(self.subModel.width), NSThread.currentThread);
     }];
     NSLog(@"after setup observation: %@", NSThread.currentThread);
-    [xTask asyncGlobalAfter:3 task:^{
+    [xTask asyncMainAfter:3 task:^{
         NSLog(@"before set width, thread: %@", NSThread.currentThread);
         self.width = 100;
         NSLog(@"after set width: self.width = %@, self.subModel.width = %@, thread: %@", @(self.width), @(self.subModel.width), NSThread.currentThread);
